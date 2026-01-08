@@ -47,12 +47,6 @@ body {
   line-height: 1.5;
 }
 
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
 /* ============================================
    FIX PARA BG-FIXED
    ============================================ */

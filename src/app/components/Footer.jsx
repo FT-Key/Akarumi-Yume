@@ -28,7 +28,7 @@ const Footer = () => {
         <div
           className="w-full h-full bg-fixed-custom"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1920&q=80')",
+            backgroundImage: "url('/images/image(13).jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
