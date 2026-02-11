@@ -1,14 +1,16 @@
 import { Inter, Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
-import Navbar from './components/Navbar.jsx';
-import Footer from './components/Footer.jsx';
+import Navbar from '@/components/layout/Navbar.jsx';
+import Footer from '@/components/layout/Footer.jsx';
+import CartDrawer from '@/components/CartDrawer';
+import { StoreInitializer } from '@/components/StoreInitializer';
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 });
 
-const notoSansJP = Noto_Sans_JP({ 
+const notoSansJP = Noto_Sans_JP({
   subsets: ['latin'],
   weight: ['300', '400', '500', '700', '900'],
   display: 'swap',
@@ -23,9 +25,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${inter.className} ${notoSansJP.className}`}>
       <body className="antialiased bg-black text-white">
-        <Navbar />
-        {children}
-        <Footer />
+        <StoreInitializer>
+          <Navbar />
+          {children}
+          <CartDrawer />
+          <Footer />
+        </StoreInitializer>
       </body>
     </html>
   );
