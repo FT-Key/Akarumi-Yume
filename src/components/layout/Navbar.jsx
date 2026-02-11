@@ -13,6 +13,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const isHome = pathname === '/';
 
+
   // Zustand stores
   const { user, isAuthenticated, logout } = useAuthStore();
   const { totalItems } = useCartStore();
@@ -23,7 +24,6 @@ const Navbar = () => {
     closeMobileMenu,
     openCartDrawer
   } = useUIStore();
-
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -96,30 +96,26 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled ? 'py-2 md:py-3' : 'py-4 md:py-6'
-      }`}
+      className={` ${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'py-3' : 'py-6'}`}
     >
       {/* Contenedor principal con clip-path dinámico */}
       <div
-        className={`mx-auto transition-all duration-500 ${
-          isScrolled 
-            ? 'max-w-full px-2 md:max-w-7xl md:px-0' 
-            : 'max-w-full px-0 md:px-8'
-        }`}
+        className={`mx-auto transition-all duration-500 ${isScrolled ? 'max-w-7xl px-2 lg:px-0' : 'max-w-full px-0 lg:px-8'}`}
       >
         <div
-          className={`relative transition-all duration-500 ${
-            isScrolled ? 'rounded-xl md:rounded-2xl shadow-2xl' : 'rounded-none'
-          }`}
+          className={`relative transition-all duration-500 ${isScrolled ? 'rounded-2xl shadow-2xl' : 'rounded-none'}`}
+        /* style={{
+          clipPath: isScrolled
+            ? 'polygon(2% 0, 98% 0, 100% 20%, 100% 80%, 98% 100%, 2% 100%, 0 80%, 0 20%)'
+            : 'none',
+        }} */
         >
           {/* Fondo con glassmorphism */}
           <div
-            className={`absolute inset-0 transition-all duration-500 ${
-              isScrolled
-                ? 'bg-black/40 backdrop-blur-xl border border-purple-500/30'
-                : 'bg-black'
-            }`}
+            className={`absolute inset-0 transition-all duration-500 ${isScrolled
+              ? 'bg-black/40 backdrop-blur-xl border border-purple-500/30'
+              : 'bg-black'
+              }`}
           >
             {/* Imagen de fondo anime (solo cuando no hay scroll) */}
             {!isScrolled && (
@@ -147,16 +143,12 @@ const Navbar = () => {
           </div>
 
           {/* Contenido del navbar */}
-          <div className={`relative transition-all duration-500 ${
-            isScrolled ? 'px-3 py-2 md:px-6 md:py-4' : 'px-4 py-3 md:px-6 md:py-4'
-          }`}>
+          <div className="relative px-6 py-4">
             <div className="flex items-center justify-between">
               {/* Logo */}
-              <a href="/" className="flex items-center gap-2 md:gap-3 group">
+              <a href="/" className="flex items-center gap-3 group">
                 <div
-                  className={`relative transition-all duration-500 ${
-                    isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-16 md:h-16'
-                  }`}
+                  className={`relative transition-all duration-500 ${isScrolled ? 'w-12 h-12' : 'w-16 h-16'}`}
                 >
                   <div
                     className="absolute inset-0 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 transform group-hover:rotate-180 transition-transform duration-700"
@@ -167,17 +159,15 @@ const Navbar = () => {
                   />
                   <Sparkles
                     className="absolute inset-0 m-auto text-white"
-                    size={isScrolled ? 20 : 24}
+                    size={isScrolled ? 24 : 32}
                   />
                 </div>
 
-                <div className={`transition-all duration-500 ${
-                  isScrolled ? 'scale-75 md:scale-90' : 'scale-90 md:scale-100'
-                }`}>
+                <div className={`transition-all duration-500 ${isScrolled ? 'scale-90' : 'scale-100'}`}>
                   <h1
                     className="font-black tracking-tight leading-none"
                     style={{
-                      fontSize: isScrolled ? 'clamp(1rem, 3vw, 1.25rem)' : 'clamp(1.125rem, 3.5vw, 1.5rem)',
+                      fontSize: isScrolled ? '1.25rem' : '1.5rem',
                       background: 'linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #06b6d4 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -188,7 +178,7 @@ const Navbar = () => {
                   </h1>
                   <p
                     className="text-gray-400 font-light tracking-wider"
-                    style={{ fontSize: isScrolled ? 'clamp(0.5rem, 2vw, 0.6rem)' : 'clamp(0.55rem, 2vw, 0.7rem)' }}
+                    style={{ fontSize: isScrolled ? '0.6rem' : '0.7rem' }}
                   >
                     明るみ夢
                   </p>
@@ -252,7 +242,7 @@ const Navbar = () => {
               </div>
 
               {/* Iconos de acciones */}
-              <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={() => router.push('/buscar')}
                   className="hidden md:block text-gray-300 hover:text-white transition-colors duration-300"
@@ -340,7 +330,7 @@ const Navbar = () => {
                   className="relative text-gray-300 hover:text-white transition-colors duration-300"
                   aria-label="Carrito"
                 >
-                  <ShoppingCart size={isScrolled ? 18 : 20} />
+                  <ShoppingCart size={20} />
                   {mounted && totalItems > 0 && (
                     <span
                       className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs flex items-center justify-center font-bold"
@@ -357,7 +347,7 @@ const Navbar = () => {
                   onClick={toggleMobileMenu}
                   aria-label="Menú"
                 >
-                  {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
               </div>
             </div>
@@ -367,7 +357,7 @@ const Navbar = () => {
         {/* Mobile menu */}
         {isMobileMenuOpen && (
           <div
-            className="lg:hidden mt-3 md:mt-4 rounded-xl md:rounded-2xl overflow-hidden"
+            className="lg:hidden mt-4 rounded-2xl overflow-hidden"
             style={{
               background: 'rgba(0, 0, 0, 0.95)',
               backdropFilter: 'blur(20px)',
@@ -375,12 +365,12 @@ const Navbar = () => {
               clipPath: 'polygon(0 3%, 100% 0, 100% 97%, 0 100%)',
             }}
           >
-            <div className="px-4 md:px-6 py-3 md:py-4 space-y-3">
+            <div className="px-6 py-4 space-y-3">
               {/* Usuario info en mobile */}
               {isAuthenticated ? (
-                <div className="pb-3 md:pb-4 border-b border-white/10">
+                <div className="pb-4 border-b border-white/10">
                   <p className="text-white font-semibold text-sm">Hola, {user?.firstName}!</p>
-                  <p className="text-gray-400 text-xs truncate">{user?.email}</p>
+                  <p className="text-gray-400 text-xs">{user?.email}</p>
                   <div className="flex gap-2 mt-3">
                     <a
                       href="/perfil"
@@ -397,9 +387,9 @@ const Navbar = () => {
                   </div>
                 </div>
               ) : (
-                <div className="pb-3 md:pb-4 border-b border-white/10">
+                <div className="pb-4 border-b border-white/10">
                   <a
-                    href="/iniciar-sesion"
+                    href="/login"
                     className="block py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-center hover:from-purple-700 hover:to-pink-700 transition-all"
                   >
                     Iniciar Sesión
@@ -437,7 +427,7 @@ const Navbar = () => {
                   router.push('/buscar');
                   closeMobileMenu();
                 }}
-                className="w-full mt-3 md:mt-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <Search size={18} />
                 Buscar
