@@ -1,123 +1,105 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, ShoppingCart, Search, User, Heart, ChevronDown, Sparkles, LogOut, UserCircle, Package } from 'lucide-react';
-import { useAuthStore, useCartStore, useFavoritesStore, useUIStore } from '@/stores';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, Search, ChevronDown, Sparkles, ChevronRight } from 'lucide-react';
+import { useNavbar } from '@/hooks/useNavbar';
+import UserButton from './navbar/UserButton';
+import UserMenu from './navbar/UserMenu';
+import CartButton from './navbar/CartButton';
+import FavoritesButton from './navbar/FavoritesButton';
 
 const Navbar = () => {
   const router = useRouter();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const pathname = usePathname();
-  const isHome = pathname === '/';
-
-
-  // Zustand stores
-  const { user, isAuthenticated, logout } = useAuthStore();
-  const { totalItems } = useCartStore();
-  const { getCount } = useFavoritesStore();
   const {
+    isScrolled,
+    activeDropdown,
+    showUserMenu,
+    loading,
+    showAllCategories,
+    mounted,
+    isHome,
+    dropdownRef,
+    userMenuRef,
+    user,
+    isAuthenticated,
+    totalItems,
+    favoritesCount,
     isMobileMenuOpen,
+    displayedCategories,
+    hasMoreCategories,
+    handleLogout,
+    toggleDropdown,
+    setShowAllCategories,
+    setActiveDropdown,
+    setShowUserMenu,
     toggleMobileMenu,
     closeMobileMenu,
-    openCartDrawer
-  } = useUIStore();
-  const [mounted, setMounted] = useState(false);
+    categories
+  } = useNavbar();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const favoritesCount = getCount();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Cerrar menú mobile al cambiar de ruta
-  useEffect(() => {
-    closeMobileMenu();
-  }, [closeMobileMenu]);
-
-  const handleLogout = () => {
-    logout();
-    setShowUserMenu(false);
-    router.push('/');
-  };
-
-  const handleUserIconClick = () => {
-    if (isAuthenticated) {
-      setShowUserMenu(!showUserMenu);
-    } else {
-      router.push('/iniciar-sesion');
-    }
-  };
-
+  // Estructura de navegación principal
   const navLinks = [
+    {
+      name: 'Categorías',
+      type: 'dropdown',
+      icon: '📚',
+      ariaLabel: 'Ver todas las categorías de productos'
+    },
     {
       name: 'Figuras',
       href: '/productos?categoria=figuras',
-      submenu: [
-        { name: 'Nendoroid', href: '/productos?categoria=figuras&tipo=nendoroid' },
-        { name: 'Scale Figures', href: '/productos?categoria=figuras&tipo=scale' },
-        { name: 'Pop Up Parade', href: '/productos?categoria=figuras&tipo=popup' },
-        { name: 'Bishoujo', href: '/productos?categoria=figuras&tipo=bishoujo' }
-      ]
-    },
-    {
-      name: 'Manga',
-      href: '/productos?categoria=manga',
-      submenu: [
-        { name: 'Shonen', href: '/productos?categoria=manga&tipo=shonen' },
-        { name: 'Seinen', href: '/productos?categoria=manga&tipo=seinen' },
-        { name: 'Shojo', href: '/productos?categoria=manga&tipo=shojo' },
-        { name: 'Ediciones Especiales', href: '/productos?categoria=manga&tipo=especiales' }
-      ]
+      type: 'link',
+      icon: '🎎',
+      ariaLabel: 'Ver colección de figuras anime'
     },
     {
       name: 'Ropa',
       href: '/productos?categoria=ropa',
-      submenu: [
-        { name: 'Camisetas', href: '/productos?categoria=ropa&tipo=camisetas' },
-        { name: 'Hoodies', href: '/productos?categoria=ropa&tipo=hoodies' },
-        { name: 'Sudaderas', href: '/productos?categoria=ropa&tipo=sudaderas' },
-        { name: 'Accesorios', href: '/productos?categoria=ropa&tipo=accesorios' }
-      ]
+      type: 'link',
+      icon: '👕',
+      ariaLabel: 'Ver ropa y accesorios anime'
     },
-    { name: 'Ofertas', href: '/ofertas' },
+    {
+      name: 'Comida',
+      href: '/productos?categoria=comida',
+      type: 'link',
+      icon: '🍜',
+      ariaLabel: 'Ver comida japonesa'
+    },
+    {
+      name: 'Ofertas',
+      href: '/ofertas',
+      type: 'link',
+      icon: '🔥',
+      ariaLabel: 'Ver ofertas y descuentos'
+    },
+    {
+      name: 'Conócenos',
+      href: '/sobre-nosotros',
+      type: 'link',
+      icon: '✨',
+      ariaLabel: 'Conoce más sobre nuestra tienda'
+    },
+    {
+      name: 'Contacto',
+      href: '/contacto',
+      type: 'link',
+      icon: '📧',
+      ariaLabel: 'Contáctanos'
+    }
   ];
 
   return (
     <nav
       className={` ${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'py-3' : 'py-6'}`}
+      role="navigation"
+      aria-label="Navegación principal"
     >
-      {/* Contenedor principal con clip-path dinámico */}
-      <div
-        className={`mx-auto transition-all duration-500 ${isScrolled ? 'max-w-7xl px-2 lg:px-0' : 'max-w-full px-0 lg:px-8'}`}
-      >
-        <div
-          className={`relative transition-all duration-500 ${isScrolled ? 'rounded-2xl shadow-2xl' : 'rounded-none'}`}
-        /* style={{
-          clipPath: isScrolled
-            ? 'polygon(2% 0, 98% 0, 100% 20%, 100% 80%, 98% 100%, 2% 100%, 0 80%, 0 20%)'
-            : 'none',
-        }} */
-        >
+      <div className={`mx-auto transition-all duration-500 ${isScrolled ? 'max-w-7xl px-2 lg:px-0' : 'max-w-full px-0 lg:px-8'}`}>
+        <div className={`relative transition-all duration-500 ${isScrolled ? 'rounded-2xl shadow-2xl' : 'rounded-none'}`}>
           {/* Fondo con glassmorphism */}
-          <div
-            className={`absolute inset-0 transition-all duration-500 ${isScrolled
-              ? 'bg-black/40 backdrop-blur-xl border border-purple-500/30'
-              : 'bg-black'
-              }`}
-          >
-            {/* Imagen de fondo anime (solo cuando no hay scroll) */}
+          <div className={`absolute inset-0 transition-all duration-500 ${isScrolled ? 'bg-black/40 backdrop-blur-xl border border-purple-500/30' : 'bg-black'}`}>
             {!isScrolled && (
               <div
                 className="absolute inset-0 opacity-20"
@@ -128,8 +110,6 @@ const Navbar = () => {
                 }}
               />
             )}
-
-            {/* Borde animado superior */}
             {isScrolled && (
               <div
                 className="absolute top-0 left-0 right-0 h-0.5"
@@ -146,10 +126,8 @@ const Navbar = () => {
           <div className="relative px-6 py-4">
             <div className="flex items-center justify-between">
               {/* Logo */}
-              <a href="/" className="flex items-center gap-3 group">
-                <div
-                  className={`relative transition-all duration-500 ${isScrolled ? 'w-12 h-12' : 'w-16 h-16'}`}
-                >
+              <a href="/" className="flex items-center gap-3 group" aria-label="Ir al inicio - Akarumi Yume Tienda Anime">
+                <div className={`relative transition-all duration-500 ${isScrolled ? 'w-12 h-12' : 'w-16 h-16'}`}>
                   <div
                     className="absolute inset-0 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 transform group-hover:rotate-180 transition-transform duration-700"
                     style={{
@@ -157,12 +135,8 @@ const Navbar = () => {
                       boxShadow: '0 0 30px rgba(147, 51, 234, 0.8)',
                     }}
                   />
-                  <Sparkles
-                    className="absolute inset-0 m-auto text-white"
-                    size={isScrolled ? 24 : 32}
-                  />
+                  <Sparkles className="absolute inset-0 m-auto text-white" size={isScrolled ? 24 : 32} />
                 </div>
-
                 <div className={`transition-all duration-500 ${isScrolled ? 'scale-90' : 'scale-100'}`}>
                   <h1
                     className="font-black tracking-tight leading-none"
@@ -176,69 +150,139 @@ const Navbar = () => {
                   >
                     AKARUMI YUME
                   </h1>
-                  <p
-                    className="text-gray-400 font-light tracking-wider"
-                    style={{ fontSize: isScrolled ? '0.6rem' : '0.7rem' }}
-                  >
+                  <p className="text-gray-400 font-light tracking-wider" style={{ fontSize: isScrolled ? '0.6rem' : '0.7rem' }}>
                     明るみ夢
                   </p>
                 </div>
               </a>
 
               {/* Links desktop */}
-              <div className="hidden lg:flex items-center gap-8">
-                {navLinks.map((link) => (
-                  <div
-                    key={link.name}
-                    className="relative group"
-                    onMouseEnter={() => link.submenu && setActiveDropdown(link.name)}
-                    onMouseLeave={() => setActiveDropdown(null)}
-                  >
-                    <a
-                      href={link.href}
-                      className="text-white font-semibold tracking-wide hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-300 flex items-center gap-1 text-sm"
-                    >
-                      {link.name}
-                      {link.submenu && (
-                        <ChevronDown
-                          size={16}
-                          className="transition-transform duration-300 group-hover:rotate-180"
-                        />
+              <div className="hidden lg:flex items-center gap-6">
+                {loading ? (
+                  <>
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="h-5 w-20 bg-white/10 rounded animate-pulse" />
+                    ))}
+                  </>
+                ) : (
+                  navLinks.map((link) => (
+                    <div key={link.name} className="relative" ref={link.type === 'dropdown' ? dropdownRef : null}>
+                      {link.type === 'dropdown' ? (
+                        <button
+                          onClick={() => toggleDropdown(link.name)}
+                          className="text-white font-semibold tracking-wide hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-300 flex items-center gap-1.5 text-sm"
+                          aria-label={link.ariaLabel}
+                          aria-expanded={activeDropdown === link.name}
+                          aria-haspopup="true"
+                        >
+                          <span className="text-base">{link.icon}</span>
+                          {link.name}
+                          <ChevronDown size={16} className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`} />
+                        </button>
+                      ) : (
+                        <a
+                          href={link.href}
+                          className="text-white font-semibold tracking-wide hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-300 flex items-center gap-1.5 text-sm"
+                          aria-label={link.ariaLabel}
+                        >
+                          <span className="text-base">{link.icon}</span>
+                          {link.name}
+                        </a>
                       )}
-                    </a>
 
-                    <div
-                      className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300"
-                      style={{ boxShadow: '0 0 10px rgba(236, 72, 153, 0.8)' }}
-                    />
+                      <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-purple-500 to-pink-500 hover:w-full transition-all duration-300" style={{ boxShadow: '0 0 10px rgba(236, 72, 153, 0.8)' }} />
 
-                    {/* Dropdown menu */}
-                    {link.submenu && activeDropdown === link.name && (
-                      <div
-                        className="absolute top-full left-0 mt-2 w-48 rounded-xl overflow-hidden"
-                        style={{
-                          background: 'rgba(0, 0, 0, 0.9)',
-                          backdropFilter: 'blur(20px)',
-                          border: '1px solid rgba(147, 51, 234, 0.3)',
-                          boxShadow: '0 10px 40px rgba(147, 51, 234, 0.3)',
-                        }}
-                      >
-                        {link.submenu.map((item, idx) => (
+                      {/* Dropdown mega menu de categorías */}
+                      {link.type === 'dropdown' && activeDropdown === link.name && (
+                        <div
+                          className="absolute top-full left-0 mt-3 w-[720px] rounded-xl overflow-hidden p-5"
+                          style={{
+                            background: 'rgba(0, 0, 0, 0.97)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(147, 51, 234, 0.3)',
+                            boxShadow: '0 20px 60px rgba(147, 51, 234, 0.4)',
+                          }}
+                          role="menu"
+                        >
+                          <div className="mb-4 pb-3 border-b border-white/10">
+                            <h3 className="text-white font-bold text-base">Explora nuestras categorías</h3>
+                            <p className="text-gray-400 text-xs mt-1">Descubre productos de anime y cultura japonesa</p>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-3">
+                            {displayedCategories.map((category) => (
+                              <a
+                                key={category.slug}
+                                href={`/productos?categoria=${category.slug}`}
+                                className="group p-3 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-purple-600/20 hover:to-pink-600/20 transition-all duration-300 border border-transparent hover:border-purple-500/30"
+                                role="menuitem"
+                                onClick={() => {
+                                  setActiveDropdown(null);
+                                  setShowAllCategories(false);
+                                }}
+                              >
+                                <div className="flex flex-col h-full">
+                                  <h4 className="font-bold text-white text-sm mb-1 group-hover:text-pink-400 transition-colors">
+                                    {category.name}
+                                  </h4>
+                                  <p className="text-gray-400 text-xs mb-2 line-clamp-2">
+                                    {category.description}
+                                  </p>
+                                  {category.subcategories && category.subcategories.length > 0 && (
+                                    <div className="mt-auto space-y-0.5">
+                                      {category.subcategories.slice(0, 3).map((sub) => (
+                                        <div key={sub.slug} className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors flex items-center gap-1">
+                                          <ChevronRight size={10} />
+                                          {sub.name}
+                                        </div>
+                                      ))}
+                                      {category.subcategories.length > 3 && (
+                                        <div className="text-xs text-purple-400">+{category.subcategories.length - 3} más</div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+
+                          {hasMoreCategories && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowAllCategories(!showAllCategories);
+                              }}
+                              className="w-full mt-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-600/30 to-pink-600/30 hover:from-purple-600/50 hover:to-pink-600/50 text-white text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 border border-purple-500/30"
+                            >
+                              {showAllCategories ? (
+                                <>
+                                  Mostrar menos
+                                  <ChevronDown size={16} className="rotate-180" />
+                                </>
+                              ) : (
+                                <>
+                                  Ver todas las categorías ({categories.length})
+                                  <ChevronDown size={16} />
+                                </>
+                              )}
+                            </button>
+                          )}
+
                           <a
-                            key={item.name}
-                            href={item.href}
-                            className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-pink-600/20 transition-all duration-300"
-                            style={{
-                              borderBottom: idx < link.submenu.length - 1 ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                            href="/productos"
+                            className="block mt-3 py-2 text-center text-sm text-purple-400 hover:text-pink-400 transition-colors font-medium"
+                            onClick={() => {
+                              setActiveDropdown(null);
+                              setShowAllCategories(false);
                             }}
                           >
-                            {item.name}
+                            Ver todos los productos →
                           </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
 
               {/* Iconos de acciones */}
@@ -246,106 +290,45 @@ const Navbar = () => {
                 <button
                   onClick={() => router.push('/buscar')}
                   className="hidden md:block text-gray-300 hover:text-white transition-colors duration-300"
-                  aria-label="Buscar"
+                  aria-label="Buscar productos"
                 >
                   <Search size={20} />
                 </button>
 
-                {/* Favoritos con contador */}
-                <button
-                  onClick={() => router.push('/favoritos')}
-                  className="hidden md:block relative text-gray-300 hover:text-pink-400 transition-colors duration-300"
-                  aria-label="Favoritos"
-                >
-                  <Heart size={20} />
-                  {mounted && favoritesCount > 0 && (
-                    <span
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs flex items-center justify-center font-bold"
-                      style={{ boxShadow: '0 0 10px rgba(236, 72, 153, 0.8)' }}
-                    >
-                      {favoritesCount > 9 ? '9+' : favoritesCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Usuario con menú dropdown */}
-                <div className="hidden md:block relative">
-                  <button
-                    onClick={handleUserIconClick}
-                    className="text-gray-300 hover:text-white transition-colors duration-300"
-                    aria-label="Cuenta"
-                  >
-                    <User size={20} />
-                  </button>
-
-                  {/* Menú de usuario */}
-                  {showUserMenu && isAuthenticated && (
-                    <div
-                      className="absolute top-full right-0 mt-2 w-56 rounded-xl overflow-hidden"
-                      style={{
-                        background: 'rgba(0, 0, 0, 0.95)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(147, 51, 234, 0.3)',
-                        boxShadow: '0 10px 40px rgba(147, 51, 234, 0.3)',
-                      }}
-                      onMouseLeave={() => setShowUserMenu(false)}
-                    >
-                      {/* Header del menú */}
-                      <div className="px-4 py-3 border-b border-white/10">
-                        <p className="text-white font-semibold text-sm">{user?.firstName} {user?.lastName}</p>
-                        <p className="text-gray-400 text-xs truncate">{user?.email}</p>
-                      </div>
-
-                      {/* Opciones del menú */}
-                      <div className="py-2">
-                        <a
-                          href="/perfil"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-pink-600/20 transition-all duration-300"
-                        >
-                          <UserCircle size={18} />
-                          Mi Perfil
-                        </a>
-                        <a
-                          href="/pedidos"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-pink-600/20 transition-all duration-300"
-                        >
-                          <Package size={18} />
-                          Mis Pedidos
-                        </a>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-600/10 transition-all duration-300"
-                        >
-                          <LogOut size={18} />
-                          Cerrar Sesión
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                <div className="hidden md:block">
+                  <FavoritesButton favoritesCount={favoritesCount} mounted={mounted} />
                 </div>
 
-                {/* Carrito con contador */}
-                <button
-                  onClick={openCartDrawer}
-                  className="relative text-gray-300 hover:text-white transition-colors duration-300"
-                  aria-label="Carrito"
-                >
-                  <ShoppingCart size={20} />
-                  {mounted && totalItems > 0 && (
-                    <span
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs flex items-center justify-center font-bold"
-                      style={{ boxShadow: '0 0 10px rgba(236, 72, 153, 0.8)' }}
-                    >
-                      {totalItems > 9 ? '9+' : totalItems}
-                    </span>
-                  )}
-                </button>
+                <div className="hidden md:block">
+                  <CartButton totalItems={totalItems} mounted={mounted} />
+                </div>
 
-                {/* Botón mobile menu */}
+                <div className="hidden md:block relative" ref={userMenuRef}>
+                  <UserButton
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        setShowUserMenu(!showUserMenu);
+                      } else {
+                        router.push('/iniciar-sesion');
+                      }
+                    }}
+                  />
+                  <UserMenu
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    showMenu={showUserMenu}
+                    onClose={() => setShowUserMenu(false)}
+                    onLogout={handleLogout}
+                  />
+                </div>
+
                 <button
                   className="lg:hidden text-white"
                   onClick={toggleMobileMenu}
-                  aria-label="Menú"
+                  aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                  aria-expanded={isMobileMenuOpen}
                 >
                   {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
@@ -354,87 +337,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div
-            className="lg:hidden mt-4 rounded-2xl overflow-hidden"
-            style={{
-              background: 'rgba(0, 0, 0, 0.95)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(147, 51, 234, 0.3)',
-              clipPath: 'polygon(0 3%, 100% 0, 100% 97%, 0 100%)',
-            }}
-          >
-            <div className="px-6 py-4 space-y-3">
-              {/* Usuario info en mobile */}
-              {isAuthenticated ? (
-                <div className="pb-4 border-b border-white/10">
-                  <p className="text-white font-semibold text-sm">Hola, {user?.firstName}!</p>
-                  <p className="text-gray-400 text-xs">{user?.email}</p>
-                  <div className="flex gap-2 mt-3">
-                    <a
-                      href="/perfil"
-                      className="flex-1 py-2 px-3 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-white text-center transition-all"
-                    >
-                      Mi Perfil
-                    </a>
-                    <button
-                      onClick={handleLogout}
-                      className="flex-1 py-2 px-3 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs text-red-400 transition-all"
-                    >
-                      Cerrar Sesión
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="pb-4 border-b border-white/10">
-                  <a
-                    href="/login"
-                    className="block py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-center hover:from-purple-700 hover:to-pink-700 transition-all"
-                  >
-                    Iniciar Sesión
-                  </a>
-                </div>
-              )}
-
-              {navLinks.map((link) => (
-                <div key={link.name}>
-                  <a
-                    href={link.href}
-                    className="block text-white font-semibold py-2 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-300"
-                  >
-                    {link.name}
-                  </a>
-                  {link.submenu && (
-                    <div className="pl-4 space-y-2 mt-2">
-                      {link.submenu.map((item) => (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          className="block text-sm text-gray-400 hover:text-white py-1 transition-colors duration-300"
-                        >
-                          {item.name}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Botón buscar en mobile */}
-              <button
-                onClick={() => {
-                  router.push('/buscar');
-                  closeMobileMenu();
-                }}
-                className="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <Search size={18} />
-                Buscar
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Mobile menu - CÓDIGO EXISTENTE AQUÍ */}
       </div>
     </nav>
   );

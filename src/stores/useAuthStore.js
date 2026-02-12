@@ -7,7 +7,6 @@ export const useAuthStore = create(
       user: null,
       token: null,
       isAuthenticated: false,
-
       hasHydrated: false,
 
       setUser: (user) =>
@@ -19,8 +18,16 @@ export const useAuthStore = create(
         set({ user, token, isAuthenticated: true }),
 
       logout: () => {
+        // Limpiar auth
         set({ user: null, token: null, isAuthenticated: false });
+        
+        // Limpiar localStorage
         localStorage.removeItem('auth-storage');
+        localStorage.removeItem('cart-storage');
+        localStorage.removeItem('favorites-storage');
+        
+        // Forzar recarga para limpiar todos los stores
+        window.location.href = '/';
       },
 
       markHydrated: () => set({ hasHydrated: true }),
